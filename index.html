@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ecossistema 4.0</title>
+    <title>Calculadora de Ecossistema 4.0 - Proporcional</title>
     <style>
         :root {
             --bg-principal: #0d1117;
@@ -33,7 +33,6 @@
             width: 100%;
             max-width: 480px;
             display: flex;
-            flex-direction: flex-start;
             flex-direction: column;
             gap: 20px;
         }
@@ -96,32 +95,6 @@
             background-color: rgba(46, 164, 79, 0.05);
         }
 
-        .btn-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-
-        button {
-            background-color: #21262d;
-            border: 1px solid #30363d;
-            color: var(--texto-principal);
-            border-radius: 6px;
-            padding: 8px 0;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:active {
-            background-color: #282e38;
-        }
-
-        button.ativo {
-            background-color: var(--azul-destaque);
-            border-color: #388bfd;
-        }
-
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -138,7 +111,6 @@
             font-weight: bold;
         }
 
-        /* Estilo da Auditoria */
         .card-auditoria {
             border-color: rgba(31, 111, 235, 0.4);
         }
@@ -171,7 +143,6 @@
 
 <div class="container">
 
-    <!-- SEÇÃO: ENTRADA OPERACIONAL -->
     <div class="titulo-secao">💰 Entrada Operacional</div>
     <div class="card">
         <div class="input-group">
@@ -182,17 +153,14 @@
             <label>Odd Total Combinada (Múltipla Base)</label>
             <input type="number" id="odd_principal" value="33.45" step="0.01">
         </div>
-        <!-- NOVO CAMPO: Auditoria de Retorno Bruto Solicitada -->
         <div class="info-row" style="background: rgba(31, 111, 235, 0.05); padding: 8px; border-radius: 4px; border: 1px dashed rgba(31, 111, 235, 0.3); margin-top: 4px;">
             <span>Retorno Bruto da Principal:</span>
             <span id="txt_retorno_bruto_topo" style="color: var(--azul-destaque); font-weight: bold;">R$ 0,00</span>
         </div>
     </div>
 
-    <!-- SEÇÃO: ECOSSISTEMA INICIAL (A) -->
     <div class="titulo-secao">⚽ Ecossistema Inicial (A)</div>
     
-    <!-- JOGO 1 -->
     <div class="card">
         <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
             <span>⚽ Jogo 1 — Cobertura Imediata (Dia 1)</span>
@@ -204,15 +172,8 @@
             <label>Odd Chance Dupla (X2)</label>
             <input type="number" id="odd_j1" value="1.6" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Definir Stake do Jogo 1 (R$):</label>
-        <div class="stake-box" id="stake_j1">0.0</div>
-        <div class="btn-container">
-            <button onclick="ajustar('j1', -5)">-5</button>
-            <button onclick="ajustar('j1', -1)">-1</button>
-            <button onclick="ajustar('j1', 1)">+1</button>
-            <button onclick="ajustar('j1', 5)">+5</button>
-            <button class="ativo">🔄</button>
-        </div>
+        <label style="margin-bottom: -6px;">Aposta Proporcional do Jogo 1 (R$):</label>
+        <div class="stake-box" id="stake_j1">0,00</div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1):</span>
             <span class="valor-destaque" id="custo_tempo_j1">R$ 0,00</span>
@@ -227,7 +188,6 @@
         </div>
     </div>
 
-    <!-- JOGO 2 -->
     <div class="card">
         <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
             <span>⚽ Jogo 2 — Rolagem Condicional (Dia 2)</span>
@@ -239,15 +199,8 @@
             <label>Odd Chance Dupla (X2)</label>
             <input type="number" id="odd_j2" value="1.6" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Definir Stake do Jogo 2 (R$):</label>
-        <div class="stake-box" id="stake_j2">0.0</div>
-        <div class="btn-container">
-            <button onclick="ajustar('j2', -5)">-5</button>
-            <button onclick="ajustar('j2', -1)">-1</button>
-            <button onclick="ajustar('j2', 1)">+1</button>
-            <button onclick="ajustar('j2', 5)">+5</button>
-            <button class="ativo">🔄</button>
-        </div>
+        <label style="margin-bottom: -6px;">Aposta Proporcional do Jogo 2 (R$):</label>
+        <div class="stake-box" id="stake_j2">0,00</div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1 + J2):</span>
             <span class="valor-destaque" id="custo_tempo_j2">R$ 0,00</span>
@@ -262,7 +215,6 @@
         </div>
     </div>
 
-    <!-- JOGO 3 -->
     <div class="card">
         <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
             <span>⚽ Jogo 3 — A Emenda Paralela (Dia 1)</span>
@@ -274,15 +226,8 @@
             <label>Odd X2 Combinada Acumulada</label>
             <input type="number" id="odd_j3" value="38.67" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Definir Stake da Emenda (R$):</label>
-        <div class="stake-box" id="stake_j3">0.0</div>
-        <div class="btn-container">
-            <button onclick="ajustar('j3', -5)">-5</button>
-            <button onclick="ajustar('j3', -1)">-1</button>
-            <button onclick="ajustar('j3', 1)">+1</button>
-            <button onclick="ajustar('j3', 5)">+5</button>
-            <button class="ativo">🔄</button>
-        </div>
+        <label style="margin-bottom: -6px;">Aposta Proporcional da Emenda (R$):</label>
+        <div class="stake-box" id="stake_j3">0,00</div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1 + J2):</span>
             <span class="valor-destaque" id="custo_tempo_j3">R$ 0,00</span>
@@ -297,7 +242,6 @@
         </div>
     </div>
 
-    <!-- SEÇÃO: AUDITORIA & GESTÃO -->
     <div class="titulo-secao">📊 Auditoria & Gestão de Risco</div>
     <div class="card card-auditoria">
         <div class="info-row" style="font-weight: bold; color: var(--azul-destaque); margin-bottom: 4px;">
@@ -314,7 +258,7 @@
         </div>
         <div class="linha-auditoria">
             <span class="auditoria-label">Lucro Final Líquido (Se a Principal bater):</span>
-            <span class="auditoria-valor var-lucro" id="aud_lucro_liquido" style="color: var(--verde-sucesso);">R$ 0,00</span>
+            <span class="auditoria-valor" id="aud_lucro_liquido" style="color: var(--verde-sucesso);">R$ 0,00</span>
         </div>
         <div class="linha-auditoria">
             <span class="auditoria-label">Conta de Risco (Exposição Proporcional):</span>
@@ -325,48 +269,41 @@
 </div>
 
 <script>
-    // Stakes manuais padrão do cenário enviado no print para travar o comportamento idêntico
-    let manualStakes = {
-        j1: 3.26,
-        j2: 8.68,
-        j3: 0.80
-    };
-
-    // Função de ajuste dos botões (+/-)
-    function ajustar(jogo, valor) {
-        manualStakes[jogo] = Math.max(0, parseFloat((manualStakes[jogo] + valor).toFixed(2)));
-        calcularEcossistema();
-    }
+    // CONSTANTES BASE: Valores exatos do cenário padrão de R$ 1,00
+    const STAKE_BASE_J1 = 3.26;
+    const STAKE_BASE_J2 = 8.68;
+    const STAKE_BASE_J3 = 0.80;
 
     function calcularEcossistema() {
-        // Captura das Entradas
+        // Captura o montante digitado pelo usuário
         const montantePrincipal = parseFloat(document.getElementById('montante_principal').value) || 0;
         const oddPrincipal = parseFloat(document.getElementById('odd_principal').value) || 0;
         const oddJ1 = parseFloat(document.getElementById('odd_j1').value) || 0;
         const oddJ2 = parseFloat(document.getElementById('odd_j2').value) || 0;
         const oddJ3 = parseFloat(document.getElementById('odd_j3').value) || 0;
 
-        // --- CÁLCULO DE AUDITORIA SOLICITADO NO TOPO ---
-        const retornoBrutoPrincipal = montantePrincipal * oddPrincipal;
-        document.getElementById('txt_retorno_bruto_topo').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
+        // MULTIPLICAÇÃO PROPORCIONAL AUTOMÁTICA
+        // Os valores multiplicam ou dividem sozinhos com base no montante digitado
+        const stakeJ1 = STAKE_BASE_J1 * montantePrincipal;
+        const stakeJ2 = STAKE_BASE_J2 * montantePrincipal;
+        const stakeJ3 = STAKE_BASE_J3 * montantePrincipal;
 
-        // Aplicação das Stakes do Print
-        const stakeJ1 = manualStakes.j1;
-        const stakeJ2 = manualStakes.j2;
-        const stakeJ3 = manualStakes.j3;
-
-        // Atualiza as caixas de texto das Stakes
+        // Atualiza a exibição das caixas verdes na tela
         document.getElementById('stake_j1').innerText = stakeJ1.toFixed(2).replace('.', ',');
         document.getElementById('stake_j2').innerText = stakeJ2.toFixed(2).replace('.', ',');
         document.getElementById('stake_j3').innerText = stakeJ3.toFixed(2).replace('.', ',');
 
-        // Cálculos Financeiros Dinâmicos por Bloco
+        // Cálculo do Retorno Bruto solicitado para o Topo
+        const retornoBrutoPrincipal = montantePrincipal * oddPrincipal;
+        document.getElementById('txt_retorno_bruto_topo').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
+
+        // Custos e Fluxos de Caixa do Ecossistema
         const custoTotalAcumulado = montantePrincipal + stakeJ3 + stakeJ1 + stakeJ2;
 
         // Jogo 1 — Cobertura Imediata
-        const custoTempoJ1 = montantePrincipal + stakeJ3 + stakeJ1;
+        const SampleCustoJ1 = montantePrincipal + stakeJ3 + stakeJ1;
         const retornoJ1 = stakeJ1 * oddJ1;
-        const lucroJ1 = retornoJ1 - custoTempoJ1;
+        const lucroJ1 = retornoJ1 - SampleCustoJ1;
 
         // Jogo 2 — Rolagem Condicional
         const retornoJ2 = stakeJ2 * oddJ2;
@@ -380,8 +317,8 @@
         const lucroFinalPrincipal = retornoBrutoPrincipal - custoTotalAcumulado;
         const contaRiscoExposicao = (custoTotalAcumulado / montantePrincipal) * 100;
 
-        // Renderização dos resultados nos cards do Ecossistema
-        document.getElementById('custo_tempo_j1').innerText = `R$ ${custoTempoJ1.toFixed(2)}`;
+        // Renderização dos dados nos cards do Ecossistema
+        document.getElementById('custo_tempo_j1').innerText = `R$ ${SampleCustoJ1.toFixed(2)}`;
         document.getElementById('retorno_x2_j1').innerText = `R$ ${retornoJ1.toFixed(2)}`;
         document.getElementById('lucro_liquido_j1').innerText = `R$ ${lucroJ1.toFixed(2)}`;
 
@@ -400,14 +337,14 @@
         document.getElementById('aud_conta_risco').innerText = `${contaRiscoExposicao.toFixed(2)}%`;
     }
 
-    // Escutas para recalcular em tempo real se o usuário mexer nos inputs
+    // Ouvintes de eventos para recalcular instantaneamente ao digitar
     document.getElementById('montante_principal').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_principal').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j1').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j2').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j3').addEventListener('input', calcularEcossistema);
 
-    // Executa o cálculo inicial ao carregar a página
+    // Inicialização da página
     window.onload = calcularEcossistema;
 </script>
 
