@@ -1,0 +1,123 @@
+<!-- Cole este bloco de script dentro do seu arquivo HTML original, substituindo a lógica antiga -->
+<script>
+// ==========================================================================
+// SISTEMA DE ENGENHARIA FINANCEIRA: DUPLO ECOSSISTEMA RECURSIVO
+// ==========================================================================
+
+function calcularEcossistemas() {
+    // ----------------------------------------------------------------------
+    // 1. CAPTURA DE INPUTS - ECOSSISTEMA A
+    // ----------------------------------------------------------------------
+    const montantePrincipal = parseFloat(document.getElementById('montante_principal').value) || 0;
+    
+    // Odds dos Mandantes (Operação A)
+    const m1 = parseFloat(document.getElementById('odd_m1').value) || 1;
+    const m2 = parseFloat(document.getElementById('odd_m2').value) || 1;
+    const m3 = parseFloat(document.getElementById('odd_m3').value) || 1;
+    
+    // Odds das Proteções Secas (Chance Dupla X2 - Operação A)
+    const x2_j1 = parseFloat(document.getElementById('odd_x2_j1').value) || 1;
+    const x2_j2 = parseFloat(document.getElementById('odd_x2_j2').value) || 1;
+    
+    // Odds das Zebras Secas do Jogo 3 (Para compor as Super Múltiplas)
+    const e3 = parseFloat(document.getElementById('odd_e3').value) || 1;
+    const v3 = parseFloat(document.getElementById('odd_v3').value) || 1;
+
+    // ----------------------------------------------------------------------
+    // 2. CAPTURA DE INPUTS - ECOSSISTEMA B (O ESPELHO)
+    // ----------------------------------------------------------------------
+    // Odds dos Mandantes (Operação B)
+    const m4 = parseFloat(document.getElementById('odd_m4').value) || 1;
+    const m5 = parseFloat(document.getElementById('odd_m5').value) || 1;
+    const m6 = parseFloat(document.getElementById('odd_m6').value) || 1;
+    
+    // Odds das Proteções Secas (Chance Dupla X2 - Operação B)
+    const x2_j4 = parseFloat(document.getElementById('odd_x2_j4').value) || 1;
+    const x2_j5 = parseFloat(document.getElementById('odd_x2_j5').value) || 1;
+
+    // ----------------------------------------------------------------------
+    // 3. CÁLCULO DAS ODDS TOTAIS ACUMULADAS
+    // ----------------------------------------------------------------------
+    const oddMultiplaprincipalA = m1 * m2 * m3;
+    const oddMultiplaMandantesB = m4 * m5 * m6;
+    
+    // Super Múltiplas de Emenda do Jogo 3 (Englobando o Bloco B)
+    const superOddEmpate3 = m1 * m2 * e3 * oddMultiplaMandantesB;
+    const superOddVisitante3 = m1 * m2 * v3 * oddMultiplaMandantesB;
+
+    // ----------------------------------------------------------------------
+    // 4. RESOLUÇÃO DA MATRIZ DE CUSTOS RECURSIVOS (DE TRÁS PARA FRENTE)
+    // ----------------------------------------------------------------------
+    
+    // PASSO A: Determinar o custo mínimo das Super Proteções do Jogo 3.
+    // Elas precisam rodar em paralelo e se autoprotegerem para garantir o retorno do ecossistema.
+    // Usamos a fórmula linear de arbitragem para isolar as duas stakes do Jogo 3 baseadas em um passivo hipotético de R$ 1,00.
+    const divisorJ3 = (superOddEmpate3 * superOddVisitante3) - superOddEmpate3 - superOddVisitante3;
+    
+    // Fator de impacto do Jogo 3 no ecossistema anterior
+    let fatorCustoJ3 = 0;
+    if (divisorJ3 > 0) {
+        const pesoE3 = superOddVisitante3 / divisorJ3;
+        const pesoV3 = superOddEmpate3 / divisorJ3;
+        fatorCustoJ3 = pesoE3 + pesoV3; 
+    }
+
+    // PASSO B: Calcular a Proteção do Jogo 1 (Chance Dupla X2)
+    // Custo fixo inicial que o Jogo 1 precisa cobrir se der zebra imediata
+    const custoBaseJ1 = montantePrincipal; 
+    
+    // Aplicando a fórmula matemática do Zero a Zero Absoluto para o Jogo 1 considerando o arrasto do Jogo 3
+    // Fórmula: Stake = (Custo_Anterior + Moedas_J3) / (Odd_X2 - 1)
+    // Como a própria Stake infla o custo total, resolvemos a equação:
+    const stakeX2_Jogo1 = (custoBaseJ1 * (1 + fatorCustoJ3)) / (x2_j1 - 1 - (x2_j1 * fatorCustoJ3));
+
+    // PASSO C: Computar os valores reais baseados na escala final do Jogo 1
+    const investimentoTotalDia1 = montantePrincipal + stakeX2_Jogo1;
+    
+    // Agora escalamos o Jogo 3 com o passivo real gerado no Dia 1
+    const stakeEmpate3 = (investimentoTotalDia1 * superOddVisitante3) / divisorJ3;
+    const stakeVisitante3 = (investimentoTotalDia1 * superOddEmpate3) / divisorJ3;
+    const custoTotalProtecoesJ3 = stakeEmpate3 + stakeVisitante3;
+
+    // CUSTO TOTAL REAL DO ECOSSISTEMA A (Dinheiro total em jogo na primeira fase)
+    const custoTotalEcossistemaA = investimentoTotalDia1 + custoTotalProtecoesJ3;
+
+    // PASSO D: Calcular a Proteção do Jogo 2 (Condicional para o Dia 2)
+    // Se o Jogo 1 der Mandante, o X2_J1 morre. O passivo que vai pro Jogo 2 é:
+    const passivoParaJogo2 = montantePrincipal + stakeX2_Jogo1 + custoTotalProtecoesJ3;
+    const stakeX2_Jogo2 = passivoParaJogo2 / (x2_j2 - 1);
+
+    // ----------------------------------------------------------------------
+    // 5. CÁLCULO DO SEGUNDO ECOSSISTEMA (OPERAÇÃO B - CASO ATIVADO PELO J3)
+    // ----------------------------------------------------------------------
+    // Se o Jogo 3 der zebra, a Super Múltipla herda todo o passivo real da Operação A
+    const passivoHerdadoOpA = custoTotalEcossistemaA;
+
+    // Proteção do Jogo 4 (Dia 1 do Ecossistema B)
+    const stakeX2_Jogo4 = passivoHerdadoOpA / (x2_j4 - 1);
+
+    // Proteção do Jogo 5 (Dia 2 do Ecossistema B)
+    const passivoParaJogo5 = passivoHerdadoOpA + stakeX2_Jogo4;
+    const stakeX2_Jogo5 = passivoParaJogo5 / (x2_j5 - 1);
+
+    // ----------------------------------------------------------------------
+    // 6. RENDERIZAÇÃO DOS RESULTADOS NA INTERFACE DO SEU REPOSITÓRIO
+    // ----------------------------------------------------------------------
+    
+    // Outputs do Ecossistema A
+    document.getElementById('out_odd_principal_a').innerText = oddMultiplaprincipalA.toFixed(2);
+    document.getElementById('out_retorno_principal_a').innerText = (montantePrincipal * oddMultiplaprincipalA).toFixed(2);
+    document.getElementById('out_stake_x2_j1').innerText = stakeX2_Jogo1.toFixed(2);
+    document.getElementById('out_stake_x2_j2').innerText = stakeX2_Jogo2.toFixed(2);
+    document.getElementById('out_super_odd_e3').innerText = superOddEmpate3.toFixed(2);
+    document.getElementById('out_super_odd_v3').innerText = superOddVisitante3.toFixed(2);
+    document.getElementById('out_stake_e3').innerText = stakeEmpate3.toFixed(2);
+    document.getElementById('out_stake_v3').innerText = stakeVisitante3.toFixed(2);
+    document.getElementById('out_custo_total_a').innerText = custoTotalEcossistemaA.toFixed(2);
+
+    // Outputs do Ecossistema B
+    document.getElementById('out_odd_principal_b').innerText = oddMultiplaMandantesB.toFixed(2);
+    document.getElementById('out_stake_x2_j4').innerText = stakeX2_Jogo4.toFixed(2);
+    document.getElementById('out_stake_x2_j5').innerText = stakeX2_Jogo5.toFixed(2);
+}
+</script>
