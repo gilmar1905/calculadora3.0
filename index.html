@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ecossistema 5.0 - Cores e Auditoria Avançada</title>
+    <title>Calculadora de Ecossistema 5.1 - Correção de Proporções</title>
     <style>
         :root {
             --bg-principal: #0d1117;
@@ -205,7 +205,7 @@
             <button onclick="ajustar('j1', -1)">-1</button>
             <button onclick="ajustar('j1', 1)">+1</button>
             <button onclick="ajustar('j1', 5)">+5</button>
-            <button class="ativo" onclick="sincronizarProporcional('j1')">🔄</button>
+            <button class="ativo" id="btn_sync_j1" onclick="alternarModo('j1')">🔄 Auto</button>
         </div>
         <div class="info-row">
             <span>Custo do Dia 1:</span>
@@ -236,7 +236,7 @@
             <button onclick="ajustar('j2', -1)">-1</button>
             <button onclick="ajustar('j2', 1)">+1</button>
             <button onclick="ajustar('j2', 5)">+5</button>
-            <button class="ativo" onclick="sincronizarProporcional('j2')">🔄</button>
+            <button class="ativo" id="btn_sync_j2" onclick="alternarModo('j2')">🔄 Auto</button>
         </div>
         <div class="info-row">
             <span>Custo do Dia 1:</span>
@@ -267,7 +267,7 @@
             <button onclick="ajustar('j3', -1)">-1</button>
             <button onclick="ajustar('j3', 1)">+1</button>
             <button onclick="ajustar('j3', 5)">+5</button>
-            <button class="ativo" onclick="sincronizarProporcional('j3')">🔄</button>
+            <button class="ativo" id="btn_sync_j3" onclick="alternarModo('j3')">🔄 Auto</button>
         </div>
         <div class="info-row">
             <span>Custo do Dia 1:</span>
@@ -337,11 +337,13 @@
 </div>
 
 <script>
-    const BASE_J1 = 2.10;
-    const BASE_J2 = 1.70;
-    const BASE_J3 = 5.00;
+    // Proporções base originais para cada R$ 10,00 de montante principal
+    const PROP_J1 = 2.10 / 10.00;
+    const PROP_J2 = 1.70 / 10.00;
+    const PROP_J3 = 5.00 / 10.00;
 
-    let manualOverride = { j1: true, j2: true, j3: true };
+    // Controla se cada card está seguindo o automático ou foi editado manualmente
+    let modoAutomatico = { j1: true, j2: true, j3: true };
 
     function gerenciarCorStatus(idElemento, valor) {
         const elemento = document.getElementById(idElemento);
@@ -355,32 +357,46 @@
 
     function recalcularProporcoesAutomaticas() {
         const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
-        if (!manualOverride.j1) document.getElementById('stake_j1').value = ((BASE_J1 / 10) * montante).toFixed(2);
-        if (!manualOverride.j2) document.getElementById('stake_j2').value = ((BASE_J2 / 10) * montante).toFixed(2);
-        if (!manualOverride.j3) document.getElementById('stake_j3').value = ((BASE_J3 / 10) * montante).toFixed(2);
+        
+        // Se o modo estiver automático, atualiza o valor da stake baseado no montante principal do topo
+        if (modoAutomatico.j1) document.getElementById('stake_j1').value = (montante * PROP_J1).toFixed(2);
+        if (modoAutomatico.j2) document.getElementById('stake_j2').value = (montante * PROP_J2).toFixed(2);
+        if (modoAutomatico.j3) document.getElementById('stake_j3').value = (montante * PROP_J3).toFixed(2);
+        
         calcularEcossistema();
     }
 
     function detectarDigitacaoManual(jogo) {
-        manualOverride[jogo] = true;
+        // Se o usuário digitar direto na caixa, desativa o botão automático desse card
+        desativarBotaoAuto(jogo);
         calcularEcossistema();
     }
 
     function ajustar(jogo, valor) {
-        manualOverride[jogo] = true; 
+        desativarBotaoAuto(jogo);
         const input = document.getElementById(`stake_${jogo}`);
         let valorAtual = parseFloat(input.value) || 0;
         input.value = Math.max(0, parseFloat((valorAtual + valor).toFixed(2)));
         calcularEcossistema();
     }
 
-    function sincronizarProporcional(jogo) {
-        const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
-        manualOverride[jogo] = false;
-        if (jogo === 'j1') document.getElementById('stake_j1').value = ((BASE_J1 / 10) * montante).toFixed(2);
-        if (jogo === 'j2') document.getElementById('stake_j2').value = ((BASE_J2 / 10) * montante).toFixed(2);
-        if (jogo === 'j3') document.getElementById('stake_j3').value = ((BASE_J3 / 10) * montante).toFixed(2);
-        calcularEcossistema();
+    function alternarModo(jogo) {
+        const btn = document.getElementById(`btn_sync_${jogo}`);
+        if (modoAutomatico[jogo]) {
+            desativarBotaoAuto(jogo);
+        } else {
+            modoAutomatico[jogo] = true;
+            btn.classList.add('ativo');
+            btn.innerText = "🔄 Auto";
+            recalcularProporcoesAutomaticas();
+        }
+    }
+
+    function desativarBotaoAuto(jogo) {
+        modoAutomatico[jogo] = false;
+        const btn = document.getElementById(`btn_sync_${jogo}`);
+        btn.classList.remove('ativo');
+        btn.innerText = "✍️ Manual";
     }
 
     function calcularEcossistema() {
@@ -397,14 +413,11 @@
         const defesaMontante = parseFloat(document.getElementById('defesa_montante').value) || 0;
         const defesaOdd = parseFloat(document.getElementById('defesa_odd').value) || 0;
 
-        // O Custo Fixo do Dia 1
         const custoTotalDia1 = montantePrincipal + stakeJ1 + stakeJ2 + stakeJ3;
 
-        // Retorno Bruto Superior
         const retornoBrutoPrincipal = montantePrincipal * oddPrincipal;
         document.getElementById('txt_retorno_bruto_topo').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
 
-        // Cálculos internos dos Cards Individuais (Exibição de proteção isolada)
         const retornoJ1 = stakeJ1 * oddJ1;
         const lucroJ1 = retornoJ1 - custoTotalDia1;
         document.getElementById('custo_tempo_j1').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
@@ -428,22 +441,17 @@
         document.getElementById('defesa_retorno_bruto').innerText = `R$ ${defesaRetornoBruto.toFixed(2)}`;
         gerenciarCorStatus('defesa_lucro_liquido', defesaLucroIsolado);
 
-        // --- ABA DE AUDITORIA: LÍQUIDO DE TUDO (CENÁRIOS ISOLADOS) ---
-
-        // Caminho A: Principal Vence (Dia 1 + Defesa do Jogo 3 acontecem)
         const custoCaminhoA = custoTotalDia1 + defesaMontante;
         const liquidoCaminhoA = retornoBrutoPrincipal - custoCaminhoA;
         document.getElementById('aud_custo_a').innerText = `R$ ${custoCaminhoA.toFixed(2)}`;
         document.getElementById('aud_retorno_a').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
         gerenciarCorStatus('aud_liquido_a', liquidoCaminhoA);
 
-        // Caminho B: Defesa Vence (Dia 1 + Defesa do Jogo 3 acontecem)
         const custoCaminhoB = custoTotalDia1 + defesaMontante;
         document.getElementById('aud_custo_b').innerText = `R$ ${custoCaminhoB.toFixed(2)}`;
         document.getElementById('aud_retorno_b').innerText = `R$ ${defesaRetornoBruto.toFixed(2)}`;
         gerenciarCorStatus('aud_liquido_b', defesaLucroIsolado);
 
-        // Caminho C: Dupla Combinada Vence (Operação morre antes do Jogo 3, não há gasto com Defesa)
         document.getElementById('aud_custo_c').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
         document.getElementById('aud_retorno_c').innerText = `R$ ${retornoJ3.toFixed(2)}`;
         gerenciarCorStatus('aud_liquido_c', lucroJ3);
@@ -462,7 +470,7 @@
     document.getElementById('defesa_montante').addEventListener('input', calcularEcossistema);
     document.getElementById('defesa_odd').addEventListener('input', calcularEcossistema);
 
-    window.onload = calcularEcossistema;
+    window.onload = recalcularProporcoesAutomaticas;
 </script>
 
 </body>
