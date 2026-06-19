@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ecossistema 4.0 - Proporcional</title>
+    <title>Calculadora de Ecossistema 4.0 - Totalmente Editável</title>
     <style>
         :root {
             --bg-principal: #0d1117;
@@ -84,7 +84,8 @@
             border-color: var(--azul-destaque);
         }
 
-        .stake-box {
+        /* Caixa Verde transformada em Input de Digitação */
+        .stake-input {
             border: 1px solid var(--verde-sucesso);
             border-radius: 6px;
             padding: 12px;
@@ -93,6 +94,39 @@
             font-weight: bold;
             color: var(--verde-sucesso);
             background-color: rgba(46, 164, 79, 0.05);
+            outline: none;
+            width: calc(100% - 26px);
+        }
+
+        .stake-input:focus {
+            border-color: #34d399;
+            background-color: rgba(46, 164, 79, 0.1);
+        }
+
+        .btn-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: var(--texto-principal);
+            border-radius: 6px;
+            padding: 8px 0;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #282e38;
+        }
+
+        button.ativo {
+            background-color: var(--azul-destaque);
+            border-color: #388bfd;
         }
 
         .info-row {
@@ -172,8 +206,15 @@
             <label>Odd Chance Dupla (X2)</label>
             <input type="number" id="odd_j1" value="1.6" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Aposta Proporcional do Jogo 1 (R$):</label>
-        <div class="stake-box" id="stake_j1">0,00</div>
+        <label style="margin-bottom: -6px;">Definir/Digitar Stake do Jogo 1 (R$):</label>
+        <input type="number" class="stake-input" id="stake_j1" value="3.26" step="0.01">
+        <div class="btn-container">
+            <button onclick="ajustar('j1', -5)">-5</button>
+            <button onclick="ajustar('j1', -1)">-1</button>
+            <button onclick="ajustar('j1', 1)">+1</button>
+            <button onclick="ajustar('j1', 5)">+5</button>
+            <button class="ativo" onclick="sincronizarProporcional('j1')">🔄</button>
+        </div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1):</span>
             <span class="valor-destaque" id="custo_tempo_j1">R$ 0,00</span>
@@ -199,8 +240,15 @@
             <label>Odd Chance Dupla (X2)</label>
             <input type="number" id="odd_j2" value="1.6" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Aposta Proporcional do Jogo 2 (R$):</label>
-        <div class="stake-box" id="stake_j2">0,00</div>
+        <label style="margin-bottom: -6px;">Definir/Digitar Stake do Jogo 2 (R$):</label>
+        <input type="number" class="stake-input" id="stake_j2" value="8.68" step="0.01">
+        <div class="btn-container">
+            <button onclick="ajustar('j2', -5)">-5</button>
+            <button onclick="ajustar('j2', -1)">-1</button>
+            <button onclick="ajustar('j2', 1)">+1</button>
+            <button onclick="ajustar('j2', 5)">+5</button>
+            <button class="ativo" onclick="sincronizarProporcional('j2')">🔄</button>
+        </div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1 + J2):</span>
             <span class="valor-destaque" id="custo_tempo_j2">R$ 0,00</span>
@@ -226,8 +274,15 @@
             <label>Odd X2 Combinada Acumulada</label>
             <input type="number" id="odd_j3" value="38.67" step="0.01">
         </div>
-        <label style="margin-bottom: -6px;">Aposta Proporcional da Emenda (R$):</label>
-        <div class="stake-box" id="stake_j3">0,00</div>
+        <label style="margin-bottom: -6px;">Definir/Digitar Stake da Emenda (R$):</label>
+        <input type="number" class="stake-input" id="stake_j3" value="0.80" step="0.01">
+        <div class="btn-container">
+            <button onclick="ajustar('j3', -5)">-5</button>
+            <button onclick="ajustar('j3', -1)">-1</button>
+            <button onclick="ajustar('j3', 1)">+1</button>
+            <button onclick="ajustar('j3', 5)">+5</button>
+            <button class="ativo" onclick="sincronizarProporcional('j3')">🔄</button>
+        </div>
         <div class="info-row">
             <span>Custo no Tempo (M + J3 + J1 + J2):</span>
             <span class="valor-destaque" id="custo_tempo_j3">R$ 0,00</span>
@@ -269,56 +324,95 @@
 </div>
 
 <script>
-    // CONSTANTES BASE: Valores exatos do cenário padrão de R$ 1,00
-    const STAKE_BASE_J1 = 3.26;
-    const STAKE_BASE_J2 = 8.68;
-    const STAKE_BASE_J3 = 0.80;
+    // CONSTANTES DE PROPORÇÃO BASE (Referência de R$ 1,00)
+    const BASE_J1 = 3.26;
+    const BASE_J2 = 8.68;
+    const BASE_J3 = 0.80;
+
+    // Controla se o usuário alterou manualmente o valor via botões ou digitação direta
+    let manualOverride = {
+        j1: false,
+        j2: false,
+        j3: false
+    };
+
+    // Executado ao mudar o montante principal
+    function recalcularProporcoesAutomaticas() {
+        const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
+        
+        // Só altera automaticamente o jogo se ele não tiver sido modificado manualmente
+        if (!manualOverride.j1) document.getElementById('stake_j1').value = (BASE_J1 * montante).toFixed(2);
+        if (!manualOverride.j2) document.getElementById('stake_j2').value = (BASE_J2 * montante).toFixed(2);
+        if (!manualOverride.j3) document.getElementById('stake_j3').value = (BASE_J3 * montante).toFixed(2);
+        
+        calcularEcossistema();
+    }
+
+    // Executado quando o usuário DIGITA diretamente dentro da caixa verde
+    function detectarDigitacaoManual(jogo) {
+        manualOverride[jogo] = true;
+        calcularEcossistema();
+    }
+
+    // Função dos botões (+/-)
+    function ajustar(jogo, valor) {
+        manualOverride[jogo] = true; 
+        const input = document.getElementById(`stake_${jogo}`);
+        let valorAtual = parseFloat(input.value) || 0;
+        input.value = Math.max(0, parseFloat((valorAtual + valor).toFixed(2)));
+        calcularEcossistema();
+    }
+
+    // Botão azul (🔄) resgata o cálculo proporcional original
+    function sincronizarProporcional(jogo) {
+        const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
+        manualOverride[jogo] = false;
+        
+        if (jogo === 'j1') document.getElementById('stake_j1').value = (BASE_J1 * montante).toFixed(2);
+        if (jogo === 'j2') document.getElementById('stake_j2').value = (BASE_J2 * montante).toFixed(2);
+        if (jogo === 'j3') document.getElementById('stake_j3').value = (BASE_J3 * montante).toFixed(2);
+        
+        calcularEcossistema();
+    }
 
     function calcularEcossistema() {
-        // Captura o montante digitado pelo usuário
         const montantePrincipal = parseFloat(document.getElementById('montante_principal').value) || 0;
         const oddPrincipal = parseFloat(document.getElementById('odd_principal').value) || 0;
         const oddJ1 = parseFloat(document.getElementById('odd_j1').value) || 0;
         const oddJ2 = parseFloat(document.getElementById('odd_j2').value) || 0;
         const oddJ3 = parseFloat(document.getElementById('odd_j3').value) || 0;
 
-        // MULTIPLICAÇÃO PROPORCIONAL AUTOMÁTICA
-        // Os valores multiplicam ou dividem sozinhos com base no montante digitado
-        const stakeJ1 = STAKE_BASE_J1 * montantePrincipal;
-        const stakeJ2 = STAKE_BASE_J2 * montantePrincipal;
-        const stakeJ3 = STAKE_BASE_J3 * montantePrincipal;
+        // Captura os valores diretamente das caixas de texto (sejam digitados ou automáticos)
+        const stakeJ1 = parseFloat(document.getElementById('stake_j1').value) || 0;
+        const stakeJ2 = parseFloat(document.getElementById('stake_j2').value) || 0;
+        const stakeJ3 = parseFloat(document.getElementById('stake_j3').value) || 0;
 
-        // Atualiza a exibição das caixas verdes na tela
-        document.getElementById('stake_j1').innerText = stakeJ1.toFixed(2).replace('.', ',');
-        document.getElementById('stake_j2').innerText = stakeJ2.toFixed(2).replace('.', ',');
-        document.getElementById('stake_j3').innerText = stakeJ3.toFixed(2).replace('.', ',');
-
-        // Cálculo do Retorno Bruto solicitado para o Topo
+        // Auditoria de Retorno Bruto no Topo
         const retornoBrutoPrincipal = montantePrincipal * oddPrincipal;
         document.getElementById('txt_retorno_bruto_topo').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
 
-        // Custos e Fluxos de Caixa do Ecossistema
+        // Custos do Sistema
         const custoTotalAcumulado = montantePrincipal + stakeJ3 + stakeJ1 + stakeJ2;
 
-        // Jogo 1 — Cobertura Imediata
-        const SampleCustoJ1 = montantePrincipal + stakeJ3 + stakeJ1;
+        // Jogo 1
+        const custoTempoJ1 = montantePrincipal + stakeJ3 + stakeJ1;
         const retornoJ1 = stakeJ1 * oddJ1;
-        const lucroJ1 = retornoJ1 - SampleCustoJ1;
+        const lucroJ1 = retornoJ1 - custoTempoJ1;
 
-        // Jogo 2 — Rolagem Condicional
+        // Jogo 2
         const retornoJ2 = stakeJ2 * oddJ2;
         const lucroJ2 = retornoJ2 - custoTotalAcumulado;
 
-        // Jogo 3 — A Emenda Paralela
+        // Jogo 3
         const retornoJ3 = stakeJ3 * oddJ3;
         const lucroJ3 = retornoJ3 - custoTotalAcumulado;
 
-        // Consolidação Geral (Painel Azul)
+        // Consolidação Geral
         const lucroFinalPrincipal = retornoBrutoPrincipal - custoTotalAcumulado;
         const contaRiscoExposicao = (custoTotalAcumulado / montantePrincipal) * 100;
 
-        // Renderização dos dados nos cards do Ecossistema
-        document.getElementById('custo_tempo_j1').innerText = `R$ ${SampleCustoJ1.toFixed(2)}`;
+        // Renderização nos cards
+        document.getElementById('custo_tempo_j1').innerText = `R$ ${custoTempoJ1.toFixed(2)}`;
         document.getElementById('retorno_x2_j1').innerText = `R$ ${retornoJ1.toFixed(2)}`;
         document.getElementById('lucro_liquido_j1').innerText = `R$ ${lucroJ1.toFixed(2)}`;
 
@@ -330,21 +424,25 @@
         document.getElementById('retorno_bruto_j3').innerText = `R$ ${retornoJ3.toFixed(2)}`;
         document.getElementById('lucro_liquido_j3').innerText = `R$ ${lucroJ3.toFixed(2)}`;
 
-        // Renderização da tabela de Consolidação Geral
+        // Renderização da tabela azul
         document.getElementById('aud_montante').innerText = `R$ ${montantePrincipal.toFixed(2)}`;
         document.getElementById('aud_gasto_real').innerText = `R$ ${custoTotalAcumulado.toFixed(2)}`;
         document.getElementById('aud_lucro_liquido').innerText = `R$ ${lucroFinalPrincipal.toFixed(2)}`;
         document.getElementById('aud_conta_risco').innerText = `${contaRiscoExposicao.toFixed(2)}%`;
     }
 
-    // Ouvintes de eventos para recalcular instantaneamente ao digitar
-    document.getElementById('montante_principal').addEventListener('input', calcularEcossistema);
+    // Eventos para escutar digitação nas caixas verdes em tempo real
+    document.getElementById('stake_j1').addEventListener('input', () => detectarDigitacaoManual('j1'));
+    document.getElementById('stake_j2').addEventListener('input', () => detectarDigitacaoManual('j2'));
+    document.getElementById('stake_j3').addEventListener('input', () => detectarDigitacaoManual('j3'));
+
+    // Eventos de digitação nos outros campos
+    document.getElementById('montante_principal').addEventListener('input', recalcularProporcoesAutomaticas);
     document.getElementById('odd_principal').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j1').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j2').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j3').addEventListener('input', calcularEcossistema);
 
-    // Inicialização da página
     window.onload = calcularEcossistema;
 </script>
 
