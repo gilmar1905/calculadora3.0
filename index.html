@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ecossistema 5.1 - Correção de Proporções</title>
+    <title>Calculadora de Ecossistema 5.3 - Automação Corrigida</title>
     <style>
         :root {
             --bg-principal: #0d1117;
@@ -166,11 +166,36 @@
             color: var(--texto-principal);
             margin-bottom: 2px;
         }
+
+        .select-salvamento {
+            background-color: var(--bg-input);
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            color: var(--texto-principal);
+            padding: 10px;
+            font-size: 14px;
+        }
+        .btn-acao {
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-salvar { background-color: var(--verde-sucesso); border: 1px solid #2ea44f; color: white; }
+        .btn-excluir { background-color: var(--vermelho-erro); border: 1px solid #f85149; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
+
+    <div class="titulo-secao">📝 Identificação da Operação</div>
+    <div class="card">
+        <div class="input-group">
+            <label>Nome da Operação / Times</label>
+            <input type="text" id="nome_operacao" value="Minha Operação Estruturada" placeholder="Digite os times ou nome identificador">
+        </div>
+    </div>
 
     <div class="titulo-secao">💰 Entrada Operacional</div>
     <div class="card">
@@ -290,7 +315,14 @@
         </div>
         <div class="input-group">
             <label>Montante para a Defesa (R$)</label>
-            <input type="number" id="defesa_montante" value="1.00" step="1.00">
+            <input type="number" class="stake-input" style="border-color: var(--laranja-alerta); color: var(--laranja-alerta); background-color: rgba(240,136,62,0.05);" id="defesa_montante" value="15.00" step="0.10">
+        </div>
+        <div class="btn-container" style="margin-bottom: 8px;">
+            <button onclick="ajustar('defesa', -5)">-5</button>
+            <button onclick="ajustar('defesa', -1)">-1</button>
+            <button onclick="ajustar('defesa', 1)">+1</button>
+            <button onclick="ajustar('defesa', 5)">+5</button>
+            <button class="ativo" id="btn_sync_defesa" onclick="alternarModo('defesa')">🔄 Auto</button>
         </div>
         <div class="input-group">
             <label>Odd da Defesa (X2 Visitante)</label>
@@ -334,47 +366,57 @@
         </div>
     </div>
 
+    <div class="titulo-secao">💾 Salvar / Carregar Operações</div>
+    <div class="card" style="gap: 10px;">
+        <div class="input-group">
+            <label>Operações Salvas no Dispositivo</label>
+            <select id="select_jogos" class="select-salvamento" onchange="carregarOperacao()">
+                <option value="">-- Selecione uma operação para carregar --</option>
+            </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+            <button class="btn-acao btn-salvar" onclick="salvarOperacao()">💾 Salvar Atual</button>
+            <button class="btn-acao btn-excluir" onclick="deletarOperacao()">🗑️ Excluir Selecionada</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // Proporções base originais para cada R$ 10,00 de montante principal
-    const PROP_J1 = 2.10 / 10.00;
-    const PROP_J2 = 1.70 / 10.00;
-    const PROP_J3 = 5.00 / 10.00;
+    // Proporções exatas travadas matematicamente com base em R$ 10,00
+    const PROP_J1 = 0.21;     // (2.10 / 10)
+    const PROP_J2 = 0.17;     // (1.70 / 10)
+    const PROP_J3 = 0.50;     // (5.00 / 10)
+    const PROP_DEFESA = 1.50; // (15.00 / 10)
 
-    // Controla se cada card está seguindo o automático ou foi editado manualmente
-    let modoAutomatico = { j1: true, j2: true, j3: true };
+    let modoAutomatico = { j1: true, j2: true, j3: true, defesa: true };
 
     function gerenciarCorStatus(idElemento, valor) {
         const elemento = document.getElementById(idElemento);
         elemento.innerText = `R$ ${valor.toFixed(2)}`;
-        if (valor >= 0) {
-            elemento.style.color = 'var(--verde-sucesso)';
-        } else {
-            elemento.style.color = 'var(--vermelho-erro)';
-        }
+        elemento.style.color = valor >= 0 ? 'var(--verde-sucesso)' : 'var(--vermelho-erro)';
     }
 
     function recalcularProporcoesAutomaticas() {
         const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
         
-        // Se o modo estiver automático, atualiza o valor da stake baseado no montante principal do topo
         if (modoAutomatico.j1) document.getElementById('stake_j1').value = (montante * PROP_J1).toFixed(2);
         if (modoAutomatico.j2) document.getElementById('stake_j2').value = (montante * PROP_J2).toFixed(2);
         if (modoAutomatico.j3) document.getElementById('stake_j3').value = (montante * PROP_J3).toFixed(2);
+        if (modoAutomatico.defesa) document.getElementById('defesa_montante').value = (montante * PROP_DEFESA).toFixed(2);
         
         calcularEcossistema();
     }
 
     function detectarDigitacaoManual(jogo) {
-        // Se o usuário digitar direto na caixa, desativa o botão automático desse card
         desativarBotaoAuto(jogo);
         calcularEcossistema();
     }
 
+    // Função de clique para os botões +1, -1, +5, -5
     function ajustar(jogo, valor) {
         desativarBotaoAuto(jogo);
-        const input = document.getElementById(`stake_${jogo}`);
+        const input = document.getElementById(jogo === 'defesa' ? 'defesa_montante' : `stake_${jogo}`);
         let valorAtual = parseFloat(input.value) || 0;
         input.value = Math.max(0, parseFloat((valorAtual + valor).toFixed(2)));
         calcularEcossistema();
@@ -395,8 +437,10 @@
     function desativarBotaoAuto(jogo) {
         modoAutomatico[jogo] = false;
         const btn = document.getElementById(`btn_sync_${jogo}`);
-        btn.classList.remove('ativo');
-        btn.innerText = "✍️ Manual";
+        if(btn) {
+            btn.classList.remove('ativo');
+            btn.innerText = "✍️ Manual";
+        }
     }
 
     function calcularEcossistema() {
@@ -448,29 +492,132 @@
         gerenciarCorStatus('aud_liquido_a', liquidoCaminhoA);
 
         const custoCaminhoB = custoTotalDia1 + defesaMontante;
+        const liquidoCaminhoB = defesaRetornoBruto - custoCaminhoB;
         document.getElementById('aud_custo_b').innerText = `R$ ${custoCaminhoB.toFixed(2)}`;
         document.getElementById('aud_retorno_b').innerText = `R$ ${defesaRetornoBruto.toFixed(2)}`;
-        gerenciarCorStatus('aud_liquido_b', defesaLucroIsolado);
+        gerenciarCorStatus('aud_liquido_b', liquidoCaminhoB);
 
         document.getElementById('aud_custo_c').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
         document.getElementById('aud_retorno_c').innerText = `R$ ${retornoJ3.toFixed(2)}`;
         gerenciarCorStatus('aud_liquido_c', lucroJ3);
     }
 
+    function salvarOperacao() {
+        const nome = document.getElementById('nome_operacao').value.trim();
+        if(!nome) { alert('Digite o nome dos times/operação primeiro!'); return; }
+
+        const dados = {
+            nome: nome,
+            montante_principal: document.getElementById('montante_principal').value,
+            odd_principal: document.getElementById('odd_principal').value,
+            odd_j1: document.getElementById('odd_j1').value,
+            stake_j1: document.getElementById('stake_j1').value,
+            modo_j1: modoAutomatico.j1,
+            odd_j2: document.getElementById('odd_j2').value,
+            stake_j2: document.getElementById('stake_j2').value,
+            modo_j2: modoAutomatico.j2,
+            odd_j3: document.getElementById('odd_j3').value,
+            stake_j3: document.getElementById('stake_j3').value,
+            modo_j3: modoAutomatico.j3,
+            defesa_montante: document.getElementById('defesa_montante').value,
+            modo_defesa: modoAutomatico.defesa,
+            defesa_odd: document.getElementById('defesa_odd').value
+        };
+
+        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
+        db[nome] = dados;
+        localStorage.setItem('ecossistema_db', JSON.stringify(db));
+        alert('Operação gravada com sucesso!');
+        atualizarSelect();
+        document.getElementById('select_jogos').value = nome;
+    }
+
+    function carregarOperacao() {
+        const select = document.getElementById('select_jogos');
+        const nome = select.value;
+        if(!nome) return;
+
+        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
+        const dados = db[nome];
+
+        if(dados) {
+            document.getElementById('nome_operacao').value = dados.nome;
+            document.getElementById('montante_principal').value = dados.montante_principal;
+            document.getElementById('odd_principal').value = dados.odd_principal;
+            
+            document.getElementById('odd_j1').value = dados.odd_j1;
+            document.getElementById('stake_j1').value = dados.stake_j1;
+            if(!dados.modo_j1) desativarBotaoAuto('j1'); else restaurarAuto('j1');
+            
+            document.getElementById('odd_j2').value = dados.odd_j2;
+            document.getElementById('stake_j2').value = dados.stake_j2;
+            if(!dados.modo_j2) desativarBotaoAuto('j2'); else restaurarAuto('j2');
+
+            document.getElementById('odd_j3').value = dados.odd_j3;
+            document.getElementById('stake_j3').value = dados.stake_j3;
+            if(!dados.modo_j3) desativarBotaoAuto('j3'); else restaurarAuto('j3');
+
+            document.getElementById('defesa_montante').value = dados.defesa_montante;
+            document.getElementById('defesa_odd').value = dados.defesa_odd;
+            if(!dados.modo_defesa) desativarBotaoAuto('defesa'); else restaurarAuto('defesa');
+
+            calcularEcossistema();
+        }
+    }
+
+    function restaurarAuto(jogo) {
+        modoAutomatico[jogo] = true;
+        const btn = document.getElementById(`btn_sync_${jogo}`);
+        if(btn) {
+            btn.classList.add('ativo');
+            btn.innerText = "🔄 Auto";
+        }
+    }
+
+    function deletarOperacao() {
+        const select = document.getElementById('select_jogos');
+        const nome = select.value;
+        if(!nome) { alert('Selecione uma operação para excluir!'); return; }
+
+        if(confirm(`Tem certeza que quer apagar a operação "${nome}"?`)) {
+            let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
+            delete db[nome];
+            localStorage.setItem('ecossistema_db', JSON.stringify(db));
+            atualizarSelect();
+            alert('Operação deletada.');
+            calcularEcossistema();
+        }
+    }
+
+    function atualizarSelect() {
+        const select = document.getElementById('select_jogos');
+        select.innerHTML = '<option value="">-- Selecione uma operação para carregar --</option>';
+        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
+        for(let nome in db) {
+            let opt = document.createElement('option');
+            opt.value = nome;
+            opt.innerText = nome;
+            select.appendChild(opt);
+        }
+    }
+
     document.getElementById('stake_j1').addEventListener('input', () => detectarDigitacaoManual('j1'));
     document.getElementById('stake_j2').addEventListener('input', () => detectarDigitacaoManual('j2'));
     document.getElementById('stake_j3').addEventListener('input', () => detectarDigitacaoManual('j3'));
+    document.getElementById('defesa_montante').addEventListener('input', () => detectarDigitacaoManual('defesa'));
 
+    // O "input" monitora qualquer alteração em tempo real na caixa do topo
     document.getElementById('montante_principal').addEventListener('input', recalcularProporcoesAutomaticas);
     document.getElementById('odd_principal').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j1').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j2').addEventListener('input', calcularEcossistema);
     document.getElementById('odd_j3').addEventListener('input', calcularEcossistema);
-    
-    document.getElementById('defesa_montante').addEventListener('input', calcularEcossistema);
     document.getElementById('defesa_odd').addEventListener('input', calcularEcossistema);
 
-    window.onload = recalcularProporcoesAutomaticas;
+    window.onload = () => {
+        atualizarSelect();
+        recalcularProporcoesAutomaticas();
+    };
 </script>
 
 </body>
