@@ -2,623 +2,75 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ecossistema 5.3 - Automação Corrigida</title>
+    <title>Painel: Auditoria de Custo Acumulado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-principal: #0d1117;
-            --bg-card: #161b22;
-            --bg-input: #090d13;
-            --borda: #21262d;
-            --texto-principal: #c9d1d9;
-            --texto-secundario: #8b949e;
-            --verde-sucesso: #2ea44f;
-            --azul-destaque: #1f6feb;
-            --laranja-alerta: #f0883e;
-            --vermelho-erro: #f85149;
-        }
-
-        body {
-            background-color: var(--bg-principal);
-            color: var(--texto-principal);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .titulo-secao {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--texto-secundario);
-            margin: 10px 0 5px 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--borda);
-            border-radius: 6px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 12px;
-            color: var(--texto-secundario);
-        }
-
-        input {
-            background-color: var(--bg-input);
-            border: 1px solid var(--borda);
-            border-radius: 6px;
-            color: var(--texto-principal);
-            padding: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: var(--azul-destaque);
-        }
-
-        .stake-input {
-            border: 1px solid var(--verde-sucesso);
-            border-radius: 6px;
-            padding: 12px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--verde-sucesso);
-            background-color: rgba(46, 164, 79, 0.05);
-            outline: none;
-            width: calc(100% - 26px);
-        }
-
-        .btn-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-
-        button {
-            background-color: #21262d;
-            border: 1px solid #30363d;
-            color: var(--texto-principal);
-            border-radius: 6px;
-            padding: 8px 0;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button.ativo {
-            background-color: var(--azul-destaque);
-            border-color: #388bfd;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--texto-secundario);
-        }
-
-        .valor-destaque {
-            color: var(--texto-principal);
-        }
-
-        .dinamico-status {
-            font-weight: bold;
-        }
-
-        .card-auditoria {
-            border-color: rgba(31, 111, 235, 0.4);
-        }
-
-        .linha-auditoria {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(33, 38, 45, 0.5);
-        }
-
-        .linha-auditoria:last-child {
-            border-bottom: none;
-        }
-
-        .auditoria-subgrupo {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-        }
-
-        .auditoria-label {
-            color: var(--texto-secundario);
-        }
-        
-        .auditoria-titulo-bloco {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--texto-principal);
-            margin-bottom: 2px;
-        }
-
-        .select-salvamento {
-            background-color: var(--bg-input);
-            border: 1px solid var(--borda);
-            border-radius: 6px;
-            color: var(--texto-principal);
-            padding: 10px;
-            font-size: 14px;
-        }
-        .btn-acao {
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .btn-salvar { background-color: var(--verde-sucesso); border: 1px solid #2ea44f; color: white; }
-        .btn-excluir { background-color: var(--vermelho-erro); border: 1px solid #f85149; color: white; }
+        .card { background: #0f172a; border: 1px solid #1e293b; padding: 16px; border-radius: 12px; }
+        .input-box { background: #020617; border: 1px solid #334155; padding: 6px; border-radius: 4px; width: 100%; text-align: center; }
     </style>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-200 p-6">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <h1 class="text-2xl font-black text-white text-center uppercase tracking-widest">⚡ AUDITORIA DE CUSTO ACUMULADO</h1>
 
-<div class="container">
-
-    <div class="titulo-secao">📝 Identificação da Operação</div>
-    <div class="card">
-        <div class="input-group">
-            <label>Nome da Operação / Times</label>
-            <input type="text" id="nome_operacao" value="Minha Operação Estruturada" placeholder="Digite os times ou nome identificador">
+        <!-- HEADER GLOBAL -->
+        <div class="grid grid-cols-3 gap-4 bg-indigo-950 p-4 rounded-xl border border-indigo-800">
+            <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Investimento Total</p><div id="mCustoTotal" class="text-lg font-black text-white">R$ 0,00</div></div>
+            <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Retorno Múltipla</p><div id="mRetornoTotal" class="text-lg font-black text-emerald-400">R$ 862.17</div></div>
+            <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Líquido Final</p><div id="mLiquidoFinal" class="text-lg font-black text-white">R$ 0,00</div></div>
         </div>
+
+        <div id="mGrade" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        <button onclick="adicionarCard()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold uppercase text-sm">+ Adicionar Bloco (Base ou Recuperação)</button>
     </div>
-
-    <div class="titulo-secao">💰 Entrada Operacional</div>
-    <div class="card">
-        <div class="input-group">
-            <label>Montante da Múltipla Principal (R$)</label>
-            <input type="number" id="montante_principal" value="10.00" step="0.50">
-        </div>
-        <div class="input-group">
-            <label>Odd Total (Múltipla Principal - Mandantes)</label>
-            <input type="number" id="odd_principal" value="4.13" step="0.01">
-        </div>
-        <div class="info-row" style="background: rgba(31, 111, 235, 0.05); padding: 8px; border-radius: 4px; border: 1px dashed rgba(31, 111, 235, 0.3);">
-            <span>Retorno Bruto da Principal:</span>
-            <span id="txt_retorno_bruto_topo" style="color: var(--azul-destaque); font-weight: bold;">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="titulo-secao">⚽ Coberturas do Ecossistema</div>
-    
-    <div class="card">
-        <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
-            <span>🤝 Card 1 — Múltipla do Empate (Jogo 1 + Seguintes)</span>
-        </div>
-        <div class="input-group">
-            <label>Odd da Múltipla do Empate</label>
-            <input type="number" id="odd_j1" value="10.09" step="0.01">
-        </div>
-        <label style="margin-bottom: -6px;">Definir/Digitar Stake (R$):</label>
-        <input type="number" class="stake-input" id="stake_j1" value="2.10" step="0.01">
-        <div class="btn-container">
-            <button onclick="ajustar('j1', -5)">-5</button>
-            <button onclick="ajustar('j1', -1)">-1</button>
-            <button onclick="ajustar('j1', 1)">+1</button>
-            <button onclick="ajustar('j1', 5)">+5</button>
-            <button class="ativo" id="btn_sync_j1" onclick="alternarModo('j1')">🔄 Auto</button>
-        </div>
-        <div class="info-row">
-            <span>Custo do Dia 1:</span>
-            <span class="valor-destaque" id="custo_tempo_j1">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Retorno Bruto se bater:</span>
-            <span class="valor-destaque" id="retorno_x2_j1">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Lucro Líquido Real:</span>
-            <span class="dinamico-status" id="lucro_liquido_j1">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
-            <span>🦘 Card 2 — Múltipla do Visitante (Jogo 1 + Seguintes)</span>
-        </div>
-        <div class="input-group">
-            <label>Odd da Múltipla do Visitante</label>
-            <input type="number" id="odd_j2" value="12.40" step="0.01">
-        </div>
-        <label style="margin-bottom: -6px;">Definir/Digitar Stake (R$):</label>
-        <input type="number" class="stake-input" id="stake_j2" value="1.70" step="0.01">
-        <div class="btn-container">
-            <button onclick="ajustar('j2', -5)">-5</button>
-            <button onclick="ajustar('j2', -1)">-1</button>
-            <button onclick="ajustar('j2', 1)">+1</button>
-            <button onclick="ajustar('j2', 5)">+5</button>
-            <button class="ativo" id="btn_sync_j2" onclick="alternarModo('j2')">🔄 Auto</button>
-        </div>
-        <div class="info-row">
-            <span>Custo do Dia 1:</span>
-            <span class="valor-destaque" id="custo_tempo_j2">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Retorno Bruto se bater:</span>
-            <span class="valor-destaque" id="retorno_x2_j2">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Lucro Líquido Real:</span>
-            <span class="dinamico-status" id="lucro_liquido_j2">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="info-row" style="font-weight: bold; color: var(--azul-destaque);">
-            <span>🚀 Card 3 — Dupla Combinada (Mandante 1 + Dupla Chance 2)</span>
-        </div>
-        <div class="input-group">
-            <label>Odd da Dupla Combinada</label>
-            <input type="number" id="odd_j3" value="4.16" step="0.01">
-        </div>
-        <label style="margin-bottom: -6px;">Definir/Digitar Stake (R$):</label>
-        <input type="number" class="stake-input" id="stake_j3" value="5.00" step="0.01">
-        <div class="btn-container">
-            <button onclick="ajustar('j3', -5)">-5</button>
-            <button onclick="ajustar('j3', -1)">-1</button>
-            <button onclick="ajustar('j3', 1)">+1</button>
-            <button onclick="ajustar('j3', 5)">+5</button>
-            <button class="ativo" id="btn_sync_j3" onclick="alternarModo('j3')">🔄 Auto</button>
-        </div>
-        <div class="info-row">
-            <span>Custo do Dia 1:</span>
-            <span class="valor-destaque" id="custo_tempo_j3">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Retorno Bruto se bater:</span>
-            <span class="valor-destaque" id="retorno_bruto_j3">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Lucro Líquido Real:</span>
-            <span class="dinamico-status" id="lucro_liquido_j3">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="titulo-secao">🛡️ Defesa Opcional Final (Jogo 3)</div>
-    <div class="card" style="border-color: var(--laranja-alerta);">
-        <div class="info-row" style="font-weight: bold; color: var(--laranja-alerta);">
-            <span>🛡️ Contra-Aposta: Dupla Chance do Jogo 3 (Dia 3)</span>
-        </div>
-        <div class="input-group">
-            <label>Montante para a Defesa (R$)</label>
-            <input type="number" class="stake-input" style="border-color: var(--laranja-alerta); color: var(--laranja-alerta); background-color: rgba(240,136,62,0.05);" id="defesa_montante" value="15.00" step="0.10">
-        </div>
-        <div class="btn-container" style="margin-bottom: 8px;">
-            <button onclick="ajustar('defesa', -5)">-5</button>
-            <button onclick="ajustar('defesa', -1)">-1</button>
-            <button onclick="ajustar('defesa', 1)">+1</button>
-            <button onclick="ajustar('defesa', 5)">+5</button>
-            <button class="ativo" id="btn_sync_defesa" onclick="alternarModo('defesa')">🔄 Auto</button>
-        </div>
-        <div class="input-group">
-            <label>Odd da Defesa (X2 Visitante)</label>
-            <input type="number" id="defesa_odd" value="2.65" step="0.01">
-        </div>
-        <div class="info-row" style="margin-top: 4px;">
-            <span>Retorno Bruto da Defesa:</span>
-            <span class="valor-destaque" id="defesa_retorno_bruto" style="font-weight: bold;">R$ 0,00</span>
-        </div>
-        <div class="info-row">
-            <span>Lucro Líquido Isolado da Defesa:</span>
-            <span class="dinamico-status" id="defesa_lucro_liquido">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="titulo-secao">📊 Auditoria & Gestão de Risco</div>
-    <div class="card card-auditoria">
-        <div class="info-row" style="font-weight: bold; color: var(--azul-destaque); margin-bottom: 6px;">
-            <span>📊 Consolidação Real do Lucro Líquido de Tudo</span>
-        </div>
-        
-        <div class="linha-auditoria">
-            <div class="auditoria-titulo-bloco">🏆 Caminho A: Múltipla Principal Vencedora</div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Investimento Total (Dia 1 + Defesa):</span><span class="valor-destaque" id="aud_custo_a">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Retorno Bruto Recebido:</span><span class="valor-destaque" id="aud_retorno_a">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Líquido de Tudo (No Bolso):</span><span class="dinamico-status" id="aud_liquido_a">R$ 0,00</span></div>
-        </div>
-
-        <div class="linha-auditoria">
-            <div class="auditoria-titulo-bloco">🛡️ Caminho B: Defesa do Jogo 3 Vencedora</div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Investimento Total (Dia 1 + Defesa):</span><span class="valor-destaque" id="aud_custo_b">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Retorno Bruto Recebido:</span><span class="valor-destaque" id="aud_retorno_b">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Líquido de Tudo (No Bolso):</span><span class="dinamico-status" id="aud_liquido_b">R$ 0,00</span></div>
-        </div>
-
-        <div class="linha-auditoria">
-            <div class="auditoria-titulo-bloco">🚀 Caminho C: Dupla Combinada Vencedora (Encerra no J1/J2)</div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Investimento Total (Apenas Dia 1):</span><span class="valor-destaque" id="aud_custo_c">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Retorno Bruto Recebido:</span><span class="valor-destaque" id="aud_retorno_c">R$ 0,00</span></div>
-            <div class="auditoria-subgrupo"><span class="auditoria-label">Líquido de Tudo (No Bolso):</span><span class="dinamico-status" id="aud_liquido_c">R$ 0,00</span></div>
-        </div>
-    </div>
-
-    <div class="titulo-secao">💾 Salvar / Carregar Operações</div>
-    <div class="card" style="gap: 10px;">
-        <div class="input-group">
-            <label>Operações Salvas no Dispositivo</label>
-            <select id="select_jogos" class="select-salvamento" onchange="carregarOperacao()">
-                <option value="">-- Selecione uma operação para carregar --</option>
-            </select>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
-            <button class="btn-acao btn-salvar" onclick="salvarOperacao()">💾 Salvar Atual</button>
-            <button class="btn-acao btn-excluir" onclick="deletarOperacao()">🗑️ Excluir Selecionada</button>
-        </div>
-    </div>
-
-</div>
 
 <script>
-    // Proporções exatas travadas matematicamente com base em R$ 10,00
-    const PROP_J1 = 0.21;     // (2.10 / 10)
-    const PROP_J2 = 0.17;     // (1.70 / 10)
-    const PROP_J3 = 0.50;     // (5.00 / 10)
-    const PROP_DEFESA = 1.50; // (15.00 / 10)
-
-    let modoAutomatico = { j1: true, j2: true, j3: true, defesa: true };
-
-    function gerenciarCorStatus(idElemento, valor) {
-        const elemento = document.getElementById(idElemento);
-        elemento.innerText = `R$ ${valor.toFixed(2)}`;
-        elemento.style.color = valor >= 0 ? 'var(--verde-sucesso)' : 'var(--vermelho-erro)';
+    let count = 0;
+    function adicionarCard() {
+        count++;
+        const grade = document.getElementById('mGrade');
+        const div = document.createElement('div');
+        div.id = `card_${count}`;
+        div.className = 'card animate-in fade-in';
+        div.innerHTML = `
+            <div class="flex justify-between mb-2"><span class="font-bold text-slate-400">BLOCO ${count}</span><button onclick="this.parentElement.parentElement.remove(); processar()" class="text-red-500 text-xs">EXCLUIR</button></div>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="number" id="oA_${count}" placeholder="Odd A" oninput="processar()" class="input-box">
+                <input type="number" id="oB_${count}" placeholder="Odd B" oninput="processar()" class="input-box">
+                <input type="number" id="sA_${count}" placeholder="Stk A" oninput="processar()" class="input-box">
+                <input type="number" id="sB_${count}" placeholder="Stk B" oninput="processar()" class="input-box">
+            </div>
+            <div class="mt-2 text-[10px] font-bold text-slate-500 border-t border-slate-700 pt-2" id="aud_${count}">Custo Acumulado: R$ 0.00</div>
+            <div class="text-[10px] font-bold text-emerald-400" id="res_${count}">Líq A: 0.00 | Líq B: 0.00</div>`;
+        grade.appendChild(div);
     }
 
-    function recalcularProporcoesAutomaticas() {
-        const montante = parseFloat(document.getElementById('montante_principal').value) || 0;
+    function processar() {
+        // Custo Fixo da Múltipla e Surebet (Ajuste conforme necessário no seu layout)
+        let custoAcumulado = 83.00; 
         
-        if (modoAutomatico.j1) document.getElementById('stake_j1').value = (montante * PROP_J1).toFixed(2);
-        if (modoAutomatico.j2) document.getElementById('stake_j2').value = (montante * PROP_J2).toFixed(2);
-        if (modoAutomatico.j3) document.getElementById('stake_j3').value = (montante * PROP_J3).toFixed(2);
-        if (modoAutomatico.defesa) document.getElementById('defesa_montante').value = (montante * PROP_DEFESA).toFixed(2);
-        
-        calcularEcossistema();
-    }
+        document.querySelectorAll('#mGrade > div').forEach(c => {
+            const id = c.id.split('_')[1];
+            const oA = parseFloat(document.getElementById(`oA_${id}`).value) || 0;
+            const oB = parseFloat(document.getElementById(`oB_${id}`).value) || 0;
+            const sA = parseFloat(document.getElementById(`sA_${id}`).value) || 0;
+            const sB = parseFloat(document.getElementById(`sB_${id}`).value) || 0;
 
-    function detectarDigitacaoManual(jogo) {
-        desativarBotaoAuto(jogo);
-        calcularEcossistema();
-    }
-
-    // Função de clique para os botões +1, -1, +5, -5
-    function ajustar(jogo, valor) {
-        desativarBotaoAuto(jogo);
-        const input = document.getElementById(jogo === 'defesa' ? 'defesa_montante' : `stake_${jogo}`);
-        let valorAtual = parseFloat(input.value) || 0;
-        input.value = Math.max(0, parseFloat((valorAtual + valor).toFixed(2)));
-        calcularEcossistema();
-    }
-
-    function alternarModo(jogo) {
-        const btn = document.getElementById(`btn_sync_${jogo}`);
-        if (modoAutomatico[jogo]) {
-            desativarBotaoAuto(jogo);
-        } else {
-            modoAutomatico[jogo] = true;
-            btn.classList.add('ativo');
-            btn.innerText = "🔄 Auto";
-            recalcularProporcoesAutomaticas();
-        }
-    }
-
-    function desativarBotaoAuto(jogo) {
-        modoAutomatico[jogo] = false;
-        const btn = document.getElementById(`btn_sync_${jogo}`);
-        if(btn) {
-            btn.classList.remove('ativo');
-            btn.innerText = "✍️ Manual";
-        }
-    }
-
-    function calcularEcossistema() {
-        const montantePrincipal = parseFloat(document.getElementById('montante_principal').value) || 0;
-        const oddPrincipal = parseFloat(document.getElementById('odd_principal').value) || 0;
-        const oddJ1 = parseFloat(document.getElementById('odd_j1').value) || 0;
-        const oddJ2 = parseFloat(document.getElementById('odd_j2').value) || 0;
-        const oddJ3 = parseFloat(document.getElementById('odd_j3').value) || 0;
-
-        const stakeJ1 = parseFloat(document.getElementById('stake_j1').value) || 0;
-        const stakeJ2 = parseFloat(document.getElementById('stake_j2').value) || 0;
-        const stakeJ3 = parseFloat(document.getElementById('stake_j3').value) || 0;
-
-        const defesaMontante = parseFloat(document.getElementById('defesa_montante').value) || 0;
-        const defesaOdd = parseFloat(document.getElementById('defesa_odd').value) || 0;
-
-        const custoTotalDia1 = montantePrincipal + stakeJ1 + stakeJ2 + stakeJ3;
-
-        const retornoBrutoPrincipal = montantePrincipal * oddPrincipal;
-        document.getElementById('txt_retorno_bruto_topo').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
-
-        const retornoJ1 = stakeJ1 * oddJ1;
-        const lucroJ1 = retornoJ1 - custoTotalDia1;
-        document.getElementById('custo_tempo_j1').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
-        document.getElementById('retorno_x2_j1').innerText = `R$ ${retornoJ1.toFixed(2)}`;
-        gerenciarCorStatus('lucro_liquido_j1', lucroJ1);
-
-        const retornoJ2 = stakeJ2 * oddJ2;
-        const lucroJ2 = retornoJ2 - custoTotalDia1;
-        document.getElementById('custo_tempo_j2').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
-        document.getElementById('retorno_x2_j2').innerText = `R$ ${retornoJ2.toFixed(2)}`;
-        gerenciarCorStatus('lucro_liquido_j2', lucroJ2);
-
-        const retornoJ3 = stakeJ3 * oddJ3;
-        const lucroJ3 = retornoJ3 - custoTotalDia1;
-        document.getElementById('custo_tempo_j3').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
-        document.getElementById('retorno_bruto_j3').innerText = `R$ ${retornoJ3.toFixed(2)}`;
-        gerenciarCorStatus('lucro_liquido_j3', lucroJ3);
-
-        const defesaRetornoBruto = defesaMontante * defesaOdd;
-        const defesaLucroIsolado = defesaRetornoBruto - (custoTotalDia1 + defesaMontante);
-        document.getElementById('defesa_retorno_bruto').innerText = `R$ ${defesaRetornoBruto.toFixed(2)}`;
-        gerenciarCorStatus('defesa_lucro_liquido', defesaLucroIsolado);
-
-        const custoCaminhoA = custoTotalDia1 + defesaMontante;
-        const liquidoCaminhoA = retornoBrutoPrincipal - custoCaminhoA;
-        document.getElementById('aud_custo_a').innerText = `R$ ${custoCaminhoA.toFixed(2)}`;
-        document.getElementById('aud_retorno_a').innerText = `R$ ${retornoBrutoPrincipal.toFixed(2)}`;
-        gerenciarCorStatus('aud_liquido_a', liquidoCaminhoA);
-
-        const custoCaminhoB = custoTotalDia1 + defesaMontante;
-        const liquidoCaminhoB = defesaRetornoBruto - custoCaminhoB;
-        document.getElementById('aud_custo_b').innerText = `R$ ${custoCaminhoB.toFixed(2)}`;
-        document.getElementById('aud_retorno_b').innerText = `R$ ${defesaRetornoBruto.toFixed(2)}`;
-        gerenciarCorStatus('aud_liquido_b', liquidoCaminhoB);
-
-        document.getElementById('aud_custo_c').innerText = `R$ ${custoTotalDia1.toFixed(2)}`;
-        document.getElementById('aud_retorno_c').innerText = `R$ ${retornoJ3.toFixed(2)}`;
-        gerenciarCorStatus('aud_liquido_c', lucroJ3);
-    }
-
-    function salvarOperacao() {
-        const nome = document.getElementById('nome_operacao').value.trim();
-        if(!nome) { alert('Digite o nome dos times/operação primeiro!'); return; }
-
-        const dados = {
-            nome: nome,
-            montante_principal: document.getElementById('montante_principal').value,
-            odd_principal: document.getElementById('odd_principal').value,
-            odd_j1: document.getElementById('odd_j1').value,
-            stake_j1: document.getElementById('stake_j1').value,
-            modo_j1: modoAutomatico.j1,
-            odd_j2: document.getElementById('odd_j2').value,
-            stake_j2: document.getElementById('stake_j2').value,
-            modo_j2: modoAutomatico.j2,
-            odd_j3: document.getElementById('odd_j3').value,
-            stake_j3: document.getElementById('stake_j3').value,
-            modo_j3: modoAutomatico.j3,
-            defesa_montante: document.getElementById('defesa_montante').value,
-            modo_defesa: modoAutomatico.defesa,
-            defesa_odd: document.getElementById('defesa_odd').value
-        };
-
-        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
-        db[nome] = dados;
-        localStorage.setItem('ecossistema_db', JSON.stringify(db));
-        alert('Operação gravada com sucesso!');
-        atualizarSelect();
-        document.getElementById('select_jogos').value = nome;
-    }
-
-    function carregarOperacao() {
-        const select = document.getElementById('select_jogos');
-        const nome = select.value;
-        if(!nome) return;
-
-        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
-        const dados = db[nome];
-
-        if(dados) {
-            document.getElementById('nome_operacao').value = dados.nome;
-            document.getElementById('montante_principal').value = dados.montante_principal;
-            document.getElementById('odd_principal').value = dados.odd_principal;
+            // Soma o custo deste bloco ao custo acumulado
+            custoAcumulado += (sA + sB);
             
-            document.getElementById('odd_j1').value = dados.odd_j1;
-            document.getElementById('stake_j1').value = dados.stake_j1;
-            if(!dados.modo_j1) desativarBotaoAuto('j1'); else restaurarAuto('j1');
+            // Exibe a auditoria do custo neste ponto exato
+            document.getElementById(`aud_${id}`).innerText = `Custo Acumulado até aqui: R$ ${custoAcumulado.toFixed(2)}`;
             
-            document.getElementById('odd_j2').value = dados.odd_j2;
-            document.getElementById('stake_j2').value = dados.stake_j2;
-            if(!dados.modo_j2) desativarBotaoAuto('j2'); else restaurarAuto('j2');
+            // Calcula o líquido baseando-se no custo acumulado naquele momento
+            const liqA = (sA * oA) - custoAcumulado;
+            const liqB = (sB * oB) - custoAcumulado;
+            document.getElementById(`res_${id}`).innerText = `Líq A: ${liqA.toFixed(2)} | Líq B: ${liqB.toFixed(2)}`;
+        });
 
-            document.getElementById('odd_j3').value = dados.odd_j3;
-            document.getElementById('stake_j3').value = dados.stake_j3;
-            if(!dados.modo_j3) desativarBotaoAuto('j3'); else restaurarAuto('j3');
-
-            document.getElementById('defesa_montante').value = dados.defesa_montante;
-            document.getElementById('defesa_odd').value = dados.defesa_odd;
-            if(!dados.modo_defesa) desativarBotaoAuto('defesa'); else restaurarAuto('defesa');
-
-            calcularEcossistema();
-        }
+        document.getElementById('mCustoTotal').innerText = `R$ ${custoAcumulado.toFixed(2)}`;
+        document.getElementById('mLiquidoFinal').innerText = `R$ ${(862.17 - custoAcumulado).toFixed(2)}`;
     }
-
-    function restaurarAuto(jogo) {
-        modoAutomatico[jogo] = true;
-        const btn = document.getElementById(`btn_sync_${jogo}`);
-        if(btn) {
-            btn.classList.add('ativo');
-            btn.innerText = "🔄 Auto";
-        }
-    }
-
-    function deletarOperacao() {
-        const select = document.getElementById('select_jogos');
-        const nome = select.value;
-        if(!nome) { alert('Selecione uma operação para excluir!'); return; }
-
-        if(confirm(`Tem certeza que quer apagar a operação "${nome}"?`)) {
-            let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
-            delete db[nome];
-            localStorage.setItem('ecossistema_db', JSON.stringify(db));
-            atualizarSelect();
-            alert('Operação deletada.');
-            calcularEcossistema();
-        }
-    }
-
-    function atualizarSelect() {
-        const select = document.getElementById('select_jogos');
-        select.innerHTML = '<option value="">-- Selecione uma operação para carregar --</option>';
-        let db = JSON.parse(localStorage.getItem('ecossistema_db')) || {};
-        for(let nome in db) {
-            let opt = document.createElement('option');
-            opt.value = nome;
-            opt.innerText = nome;
-            select.appendChild(opt);
-        }
-    }
-
-    document.getElementById('stake_j1').addEventListener('input', () => detectarDigitacaoManual('j1'));
-    document.getElementById('stake_j2').addEventListener('input', () => detectarDigitacaoManual('j2'));
-    document.getElementById('stake_j3').addEventListener('input', () => detectarDigitacaoManual('j3'));
-    document.getElementById('defesa_montante').addEventListener('input', () => detectarDigitacaoManual('defesa'));
-
-    // O "input" monitora qualquer alteração em tempo real na caixa do topo
-    document.getElementById('montante_principal').addEventListener('input', recalcularProporcoesAutomaticas);
-    document.getElementById('odd_principal').addEventListener('input', calcularEcossistema);
-    document.getElementById('odd_j1').addEventListener('input', calcularEcossistema);
-    document.getElementById('odd_j2').addEventListener('input', calcularEcossistema);
-    document.getElementById('odd_j3').addEventListener('input', calcularEcossistema);
-    document.getElementById('defesa_odd').addEventListener('input', calcularEcossistema);
-
-    window.onload = () => {
-        atualizarSelect();
-        recalcularProporcoesAutomaticas();
-    };
 </script>
-
 </body>
 </html>
