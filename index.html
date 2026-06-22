@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel: Auditoria de Custo Acumulado</title>
+    <title>Painel Executivo: Auditoria Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .card { background: #0f172a; border: 1px solid #1e293b; padding: 16px; border-radius: 12px; }
@@ -11,17 +11,36 @@
 </head>
 <body class="bg-slate-950 text-slate-200 p-6">
     <div class="max-w-6xl mx-auto space-y-6">
-        <h1 class="text-2xl font-black text-white text-center uppercase tracking-widest">⚡ AUDITORIA DE CUSTO ACUMULADO</h1>
+        <h1 class="text-2xl font-black text-white text-center uppercase tracking-widest">⚡ PAINEL EXECUTIVO: AUDITORIA TOTAL</h1>
 
-        <!-- HEADER GLOBAL -->
+        <!-- AUDITORIA GLOBAL -->
         <div class="grid grid-cols-3 gap-4 bg-indigo-950 p-4 rounded-xl border border-indigo-800">
             <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Investimento Total</p><div id="mCustoTotal" class="text-lg font-black text-white">R$ 0,00</div></div>
-            <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Retorno Múltipla</p><div id="mRetornoTotal" class="text-lg font-black text-emerald-400">R$ 862.17</div></div>
+            <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Retorno Múltipla</p><div id="mRetornoTotal" class="text-lg font-black text-emerald-400">R$ 0,00</div></div>
             <div><p class="text-[10px] text-indigo-300 uppercase font-bold">Líquido Final</p><div id="mLiquidoFinal" class="text-lg font-black text-white">R$ 0,00</div></div>
         </div>
 
+        <!-- MÚLTIPLA E SUREBET -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="card border-l-4 border-l-indigo-500">
+                <h2 class="font-bold text-indigo-400 mb-2">MÚLTIPLA PRINCIPAL</h2>
+                <input type="number" id="mstk" placeholder="Stake" oninput="processar()" class="input-box mb-2">
+                <input type="number" id="modd" placeholder="Odd" oninput="processar()" class="input-box">
+            </div>
+            
+            <div class="card border-l-4 border-l-emerald-500">
+                <h2 class="font-bold text-emerald-400 mb-2">SUREBET (Automática)</h2>
+                <input type="number" id="montanteSure" placeholder="Montante Total" oninput="processar()" class="input-box mb-2">
+                <div class="grid grid-cols-3 gap-2">
+                    <input type="number" id="oDupla" placeholder="Odd D" oninput="processar()" class="input-box">
+                    <input type="number" id="oProtA" placeholder="Odd A" oninput="processar()" class="input-box">
+                    <input type="number" id="oProtB" placeholder="Odd B" oninput="processar()" class="input-box">
+                </div>
+            </div>
+        </div>
+
         <div id="mGrade" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-        <button onclick="adicionarCard()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold uppercase text-sm">+ Adicionar Bloco (Base ou Recuperação)</button>
+        <button onclick="adicionarCard()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold uppercase text-sm">+ Adicionar Card de Recuperação</button>
     </div>
 
 <script>
@@ -33,22 +52,26 @@
         div.id = `card_${count}`;
         div.className = 'card animate-in fade-in';
         div.innerHTML = `
-            <div class="flex justify-between mb-2"><span class="font-bold text-slate-400">BLOCO ${count}</span><button onclick="this.parentElement.parentElement.remove(); processar()" class="text-red-500 text-xs">EXCLUIR</button></div>
+            <div class="flex justify-between items-center mb-2"><span class="font-bold text-slate-400">RECUPERAÇÃO #${count}</span><button onclick="this.parentElement.parentElement.remove(); processar()" class="text-red-500 text-xs">EXCLUIR</button></div>
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <input type="number" id="oA_${count}" placeholder="Odd A" oninput="processar()" class="input-box">
                 <input type="number" id="oB_${count}" placeholder="Odd B" oninput="processar()" class="input-box">
                 <input type="number" id="sA_${count}" placeholder="Stk A" oninput="processar()" class="input-box">
                 <input type="number" id="sB_${count}" placeholder="Stk B" oninput="processar()" class="input-box">
             </div>
-            <div class="mt-2 text-[10px] font-bold text-slate-500 border-t border-slate-700 pt-2" id="aud_${count}">Custo Acumulado: R$ 0.00</div>
+            <div class="mt-2 pt-2 border-t border-slate-700 text-[9px] font-bold text-slate-500" id="aud_${count}">Custo Acumulado: R$ 0.00</div>
             <div class="text-[10px] font-bold text-emerald-400" id="res_${count}">Líq A: 0.00 | Líq B: 0.00</div>`;
         grade.appendChild(div);
     }
 
     function processar() {
-        // Custo Fixo da Múltipla e Surebet (Ajuste conforme necessário no seu layout)
-        let custoAcumulado = 83.00; 
-        
+        const mstk = parseFloat(document.getElementById('mstk').value) || 0;
+        const modd = parseFloat(document.getElementById('modd').value) || 0;
+        const mSure = parseFloat(document.getElementById('montanteSure').value) || 0;
+
+        // Inicia o custo com Múltipla + Surebet
+        let custoAcumulado = mstk + mSure;
+
         document.querySelectorAll('#mGrade > div').forEach(c => {
             const id = c.id.split('_')[1];
             const oA = parseFloat(document.getElementById(`oA_${id}`).value) || 0;
@@ -56,20 +79,15 @@
             const sA = parseFloat(document.getElementById(`sA_${id}`).value) || 0;
             const sB = parseFloat(document.getElementById(`sB_${id}`).value) || 0;
 
-            // Soma o custo deste bloco ao custo acumulado
             custoAcumulado += (sA + sB);
             
-            // Exibe a auditoria do custo neste ponto exato
-            document.getElementById(`aud_${id}`).innerText = `Custo Acumulado até aqui: R$ ${custoAcumulado.toFixed(2)}`;
-            
-            // Calcula o líquido baseando-se no custo acumulado naquele momento
-            const liqA = (sA * oA) - custoAcumulado;
-            const liqB = (sB * oB) - custoAcumulado;
-            document.getElementById(`res_${id}`).innerText = `Líq A: ${liqA.toFixed(2)} | Líq B: ${liqB.toFixed(2)}`;
+            document.getElementById(`aud_${id}`).innerText = `Custo Acumulado aqui: R$ ${custoAcumulado.toFixed(2)}`;
+            document.getElementById(`res_${id}`).innerText = `Líq A: ${(sA * oA - custoAcumulado).toFixed(2)} | Líq B: ${(sB * oB - custoAcumulado).toFixed(2)}`;
         });
 
         document.getElementById('mCustoTotal').innerText = `R$ ${custoAcumulado.toFixed(2)}`;
-        document.getElementById('mLiquidoFinal').innerText = `R$ ${(862.17 - custoAcumulado).toFixed(2)}`;
+        document.getElementById('mRetornoTotal').innerText = `R$ ${(mstk * modd).toFixed(2)}`;
+        document.getElementById('mLiquidoFinal').innerText = `R$ ${( (mstk * modd) - custoAcumulado ).toFixed(2)}`;
     }
 </script>
 </body>
